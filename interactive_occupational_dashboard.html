@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>Interactive Occupational Insights Dashboard - D3.js</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background: #FFFFFF; /* Very light gray background */
+            color: #333333; /* Darker text for contrast */
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Main Dashboard Title */
+        h1 {
+            text-align: center;
+            margin: 2.5rem 0 1.5rem;
+            font-weight: 700;
+            color: #2D3748; /* Dark slate gray for title */
+            font-size: 2.5rem;
+            letter-spacing: 0.02em; /* Slightly reduced letter spacing */
+            text-shadow: none; /* Remove Hitech glow */
+        }
+
+        /* Dashboard Grid Layout - Main container for all chart blocks */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding: 1.5rem 2.5rem 4rem;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Tablet and larger screens: 2 columns for alternating layout */
+        @media (min-width: 768px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Wrapper for specific chart sections that need side-by-side layout */
+        .chart-section-wrapper {
+            display: grid;
+            grid-template-columns: 1fr; /* Default for mobile */
+            gap: 2rem;
+            grid-column: span 2; /* Always span 2 columns in the main dashboard grid */
+        }
+
+        @media (min-width: 768px) {
+            .chart-section-wrapper {
+                grid-template-columns: 1fr 1fr; /* Two columns for chart and text side-by-side */
+            }
+        }
+
+
+        /* Individual Chart Block Styling (applied to both visual and description blocks) */
+        .chart-block {
+            background: #FFFFFF; /* Clean white background */
+            border-radius: 12px; /* Softly rounded corners */
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            transition: all 0.3s ease-out; /* Smoother transition */
+            min-height: 350px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-block:hover {
+            transform: translateY(-3px); /* Subtle lift effect on hover */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); /* Slightly stronger shadow on hover */
+        }
+
+        /* Styling for the description blocks */
+        .chart-description {
+            padding: 2rem;
+            /* Default text alignment, will be overridden for side-by-side */
+            text-align: center;
+        }
+
+        /* Specific alignment when part of a side-by-side layout */
+        .chart-section-wrapper .chart-description {
+            text-align: left; /* Align text to the left within the side-by-side block */
+            padding: 1.5rem; /* Slightly reduce padding for tighter fit */
+            display: flex; /* Use flexbox to center content vertically */
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .chart-description h2 {
+            margin: 0 0 1rem;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #2D3748; /* Dark slate gray for chart titles */
+            text-shadow: none; /* Remove Hitech glow */
+        }
+
+        .chart-description p {
+            font-size: 0.95rem;
+            color: #4A5568; /* Muted gray for body text */
+            margin-bottom: 0;
+        }
+
+        /* Styling for bulleted lists within descriptions */
+        .chart-description ul {
+            list-style: none; /* Remove default bullets */
+            padding: 0; /* Remove default padding */
+            margin-top: 1rem; /* Space from previous paragraph */
+            text-align: left; /* Align list items to the left */
+            max-width: 400px; /* Constrain width for readability */
+            margin-left: auto; /* Center the ul block */
+            margin-right: auto; /* Center the ul block */
+        }
+
+        .chart-description ul li {
+            position: relative;
+            padding-left: 1.5em; /* Space for custom bullet */
+            margin-bottom: 0.5em; /* Space between list items */
+            color: #4A5568; /* Muted gray for list text */
+            font-size: 0.9rem;
+        }
+
+        .chart-description ul li::before {
+            content: '•'; /* Custom bullet point */
+            color: #4299E1; /* Aesthetic blue for bullet */
+            font-size: 1.2em;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .chart-description ul li b {
+            color: #2D3748; /* Make bold text stand out more */
+        }
+
+
+        /* SVG Base Styling */
+        .chart-visual svg {
+            width: 100%;
+            height: 350px;
+            overflow: visible;
+        }
+
+        /* Tooltip Styling */
+        .tooltip {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95); /* Light, clean background */
+            color: #333333; /* Dark text */
+            padding: 8px 15px;
+            border-radius: 8px;
+            pointer-events: none;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            user-select: none;
+            border: 1px solid #CBD5E0; /* Subtle light gray border */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        }
+
+        /* D3 Chart specific styles (for axes, text etc.) */
+        .domain, .tick line {
+            stroke: #CBD5E0; /* Lighter gray for axis lines */
+            stroke-width: 0.5;
+        }
+
+        .tick text {
+            fill: #718096; /* Muted gray for tick labels */
+            font-size: 11px;
+        }
+
+        /* Specific chart element colors (will be overridden by JS for data points) */
+        .bar {
+            fill: #4299E1; /* Aesthetic blue for bars */
+        }
+
+        .arc path {
+            stroke: #FFFFFF; /* Match chart block background for arc stroke */
+        }
+
+        .radarCircle {
+            fill: #4299E1; /* Aesthetic blue for radar points */
+            stroke: #4299E1;
+            stroke-width: 2px;
+        }
+
+        /* Globe specific styles */
+        .country {
+            stroke: #E2E8F0; /* Match block border for country borders */
+            stroke-width: 0.3;
+            transition: fill 0.2s ease, stroke-width 0.2s ease;
+        }
+
+        .graticule {
+            stroke: #E2E8F0; /* Very light graticule lines */
+            stroke-width: 0.4;
+        }
+
+        /* Circular Packing specific styles */
+        .pack-node circle {
+            fill: #4299E1; /* Default fill, will be overridden by color scale */
+            stroke: #FFFFFF; /* White stroke for separation */
+            stroke-width: 1px;
+        }
+        .pack-node text {
+            font-size: 10px;
+            fill: #FFFFFF; /* White text for contrast */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) { /* Mobile screens */
+            h1 {
+                font-size: 2rem;
+                margin-top: 1.5rem;
+            }
+            .dashboard {
+                padding: 1rem 1rem 2rem;
+                gap: 1.5rem;
+            }
+            .chart-block {
+                padding: 1rem;
+                min-height: 300px;
+            }
+            .chart-description h2 {
+                font-size: 1.1rem;
+            }
+            .chart-description p {
+                font-size: 0.85rem;
+            }
+            .chart-visual svg {
+                height: 300px;
+            }
+            .chart-description ul {
+                padding: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Occupational Insights Dashboard</h1>
+    <div class="dashboard">
+        <div class="chart-section-wrapper">
+            <div class="chart-block chart-visual">
+                <svg id="industryChartSvg"></svg>
+            </div>
+            <div class="chart-block chart-description">
+                <h2>Industry Distribution</h2>
+                <p>This circular packing chart visualizes the distribution of professionals across various industries, with the size of each circle representing the count of individuals in that sector.</p>
+            </div>
+        </div>
+
+        <div class="chart-section-wrapper">
+            <div class="chart-block chart-description" id="salaryChartDescription">
+                <h2>Average Salary by Role</h2>
+                <p>This chart displays the average reported salary across various occupational roles, highlighting the financial landscape for different positions within the industry.</p>
+                <ul>
+                    <li><b>Data Scientists</b> earn the highest average salary, reflecting the strong demand and specialized skills required in this role.</li>
+                    <li><b>Data Engineers</b> and <b>Data Architects</b> also command high salaries, indicating their critical roles in building and maintaining data infrastructure.</li>
+                    <li>Roles categorized as “<b>Other</b>” and <b>Data Analysts</b> offer moderate compensation, showing value while reflecting a broader range of responsibilities.</li>
+                    <li><b>Database Developers</b> and <b>Students</b> are at the lower end of the salary spectrum, likely due to either niche focus or early career status.</li>
+                </ul>
+            </div>
+            <div class="chart-block chart-visual" id="salaryChartVisual">
+                <svg id="salaryChartSvg"></svg>
+            </div>
+        </div>
+
+        <div class="chart-block chart-description">
+            <h2>Gender Distribution</h2>
+            <p>This donut chart illustrates the percentage distribution of different genders within the surveyed population, providing insight into workforce diversity.</p>
+            <ul>
+                <li><b>Male</b> professionals make up 50% of the surveyed population.</li>
+                <li><b>Female</b> professionals account for 49%, indicating near gender parity.</li>
+                <li><b>Non-binary</b> individuals represent 1%, showing growing recognition and inclusion of gender diversity.</li>
+            </ul>
+        </div>
+        <div class="chart-block chart-visual">
+            <svg id="genderChartSvg"></svg>
+        </div>
+
+        <div class="chart-block chart-visual">
+            <svg id="happinessChartSvg"></svg>
+        </div>
+        <div class="chart-block chart-description">
+            <h2>Happiness with Job Aspects</h2>
+            <p>The radar chart evaluates satisfaction levels across key job aspects such as salary, work-life balance, and learning opportunities, on a scale of 1 to 7.</p>
+            <ul>
+                <li><b>Learning opportunities</b> and <b>work-life balance</b> are the top-rated aspects, indicating that professionals highly value growth and personal time.</li>
+                <li><b>Salary</b> also scores well, suggesting general satisfaction with compensation across roles.</li>
+                <li><b>Coworker</b> relationships receive solid ratings, reflecting positive team dynamics.</li>
+                <li><b>Mobility</b> and <b>management</b> are the least satisfying aspects, possibly pointing to limitations in career progression or leadership quality.</li>
+            </ul>
+        </div>
+
+        <div class="chart-block chart-description">
+            <h2>Favorite Programming Languages</h2>
+            <p>This bar chart shows the popularity of various programming languages among professionals, indicating current trends and preferred tools in the field.</p>
+            <ul>
+                <li><b>Python</b> is the most favored programming language, indicating its dominance in modern development, data science, and automation.</li>
+                <li><b>JavaScript</b> holds strong popularity, reflecting its essential role in web development and full-stack applications.</li>
+                <li><b>Java</b> and <b>SQL</b> are still widely used, particularly in enterprise environments and data-driven systems.</li>
+                <li><b>C#</b> has moderate usage, likely tied to Windows-based development and game development (via Unity).</li>
+                <li><b>R</b> is the least used among the listed languages, suggesting niche adoption mainly in statistical computing and research contexts.</li>
+            </ul>
+        </div>
+        <div class="chart-block chart-visual">
+            <svg id="languageChartSvg"></svg>
+        </div>
+
+        <div class="chart-section-wrapper">
+            <div class="chart-block chart-visual" id="globeChartVisual">
+                <svg id="globeChartSvg"></svg>
+            </div>
+            <div class="chart-block chart-description" id="globeChartDescription">
+                <h2>Country Distribution (Draggable Globe)</h2>
+                <p>Explore the global distribution of respondents using this interactive 3D globe. Countries are colored based on the number of participants from that region.</p>
+            </div>
+        </div>
+
+        <div class="chart-block chart-description">
+            <h2>Years of Experience Distribution</h2>
+            <p>This area chart visualizes the distribution of professionals based on their years of experience, showing the prevalence of different career stages.</p>
+            <ul>
+                <li>The majority of professionals fall within the <b>3–5 years</b> experience range, indicating a strong presence of early-mid career individuals.</li>
+                <li>There is a steady increase in professionals from <b>0–1</b> to <b>3–5 years</b>, suggesting active early-career hiring.</li>
+                <li>A noticeable decline occurs after <b>5 years</b> of experience, pointing to potential attrition or fewer mid-senior level roles.</li>
+                <li>Senior professionals (<b>10+ years</b>) form a smaller segment of the workforce, possibly due to transitions into leadership roles or industry exits.</li>
+            </ul>
+        </div>
+        <div class="chart-block chart-visual">
+            <svg id="experienceChartSvg"></svg>
+        </div>
+    </div>
+    <div class="tooltip" id="tooltip"></div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/versor@0.0.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson@3"></script>
+
+    <script>
+        // Select the global tooltip element
+        const tooltip = d3.select("#tooltip");
+
+        // -------- Industry Distribution (Circular Packing Chart) --------
+        (function () {
+            const data = {
+                "name": "Industries",
+                "children": [
+                    { "name": "TECH", "value": 150 },
+                    { "name": "OTHER", "value": 205 },
+                    { "name": "FINANCE", "value": 97 },
+                    { "name": "HEALTHCARE", "value": 84 },
+                    { "name": "EDUCATION", "value": 38 },
+                    { "name": "TELECOMMUNICATION", "value": 22 },
+                    { "name": "CONSTRUCTION", "value": 14 },
+                    { "name": "REAL ESTATE", "value": 13 },
+                    { "name": "AGRICULTURE", "value": 7 }
+                ]
+            };
+
+            const width = 480;
+            const height = 350;
+
+            const svg = d3.select("#industryChartSvg")
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .append("g")
+                .attr("transform", `translate(${width / 2},${height / 2})`); // Center the packing
+
+            const pack = d3.pack()
+                .size([width, height])
+                .padding(2); // Padding between circles
+
+            const root = d3.hierarchy(data)
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+
+            const nodes = pack(root).leaves();
+
+            // New color scale for circular packing (interpolatePlasma)
+            const color = d3.scaleSequential(d3.interpolatePlasma)
+                .domain([0, d3.max(nodes, d => d.value)]);
+
+            const node = svg.selectAll(".pack-node")
+                .data(nodes)
+                .join("g")
+                .attr("class", "pack-node")
+                .attr("transform", d => `translate(${d.x - width / 2},${d.y - height / 2})`); // Adjust translation to center
+
+            node.append("circle")
+                .attr("r", 0) // Start with radius 0 for animation
+                .attr("fill", d => color(d.value))
+                .attr("stroke", "#FFFFFF")
+                .attr("stroke-width", 1)
+                .transition()
+                .duration(1000)
+                .attr("r", d => d.r); // Animate to final radius
+
+            node.append("text")
+                .attr("dy", "0.3em")
+                .text(d => d.data.name)
+                .attr("font-size", d => Math.min(14, d.r / 3)) // Dynamic font size based on circle radius
+                .attr("fill", "#FFFFFF")
+                .attr("text-anchor", "middle")
+                .attr("opacity", 0) // Start invisible for animation
+                .transition()
+                .delay(500) // Delay text appearance
+                .duration(700)
+                .attr("opacity", 1);
+
+            node.on("mouseover", (event, d) => {
+                tooltip.style("opacity", 1)
+                    .html(`<strong>${d.data.name}</strong><br>Count: ${d.data.value}`)
+                    .style("left", (event.pageX + 12) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+                d3.select(event.currentTarget).select("circle")
+                    .attr("stroke-width", 2)
+                    .attr("stroke", "#4A5568");
+            })
+            .on("mousemove", (event) => {
+                tooltip.style("left", (event.pageX + 12) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", (event) => {
+                tooltip.style("opacity", 0);
+                d3.select(event.currentTarget).select("circle")
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#FFFFFF");
+            });
+        })();
+
+
+        // -------- Years of Experience Distribution (Area Chart) --------
+        (function () {
+            const data = [
+                { years: "0-1", value: 10 },
+                { years: "1-3", value: 25 },
+                { years: "3-5", value: 35 },
+                { years: "5-10", value: 20 },
+                { years: "10+", value: 10 }
+            ];
+
+            const margin = { top: 40, right: 20, bottom: 40, left: 40 };
+            const width = 480 - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+
+            const svg = d3.select("#experienceChartSvg")
+                .attr("viewBox", `0 0 480 350`)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scalePoint()
+                .domain(data.map(d => d.years))
+                .range([0, width])
+                .padding(0.5);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.value) * 1.2])
+                .range([height, 0]);
+
+            // X Axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .attr("font-size", "12px")
+                .attr("color", "#718096"); /* Muted gray for axis text */
+
+            // Y Axis
+            svg.append("g")
+                .call(d3.axisLeft(y).ticks(5))
+                .attr("font-size", "12px")
+                .attr("color", "#718096"); /* Muted gray for axis text */
+
+            const area = d3.area()
+                .x(d => x(d.years))
+                .y0(height)
+                .y1(d => y(d.value))
+                .curve(d3.curveMonotoneX);
+
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "#90CDF4") /* Softer blue for area fill */
+                .attr("stroke", "#4299E1") /* Primary blue for stroke */
+                .attr("stroke-width", 2)
+                .attr("d", area)
+                .attr("opacity", 0)
+                .transition()
+                .duration(1000)
+                .attr("opacity", 1);
+
+            svg.selectAll(".dot")
+                .data(data)
+                .join("circle")
+                .attr("class", "dot")
+                .attr("cx", d => x(d.years))
+                .attr("cy", d => y(d.value))
+                .attr("r", 5)
+                .attr("fill", "#4299E1") /* Primary blue for dots */
+                .on("mouseover", (event, d) => {
+                    tooltip.style("opacity", 1)
+                        .html(`<strong>${d.years}</strong><br>${d.value}%`)
+                        .style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.style("opacity", 0);
+                });
+        })();
+
+        // -------- Average Salary by Role (Horizontal Bar Chart) --------
+        (function () {
+            const data = [
+                { role: "Data Scientist", salary: 95 },
+                { role: "Data Engineer", salary: 72 },
+                { role: "Data Architect", salary: 68 },
+                { role: "Other", salary: 58 },
+                { role: "Data Analyst", salary: 50 },
+                { role: "Database Developer", salary: 40 },
+                { role: "Student", salary: 35 }
+            ];
+
+            const margin = { top: 20, right: 25, bottom: 40, left: 140 };
+            const width = 480 - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+
+            const svg = d3.select("#salaryChartSvg")
+                .attr("viewBox", `0 0 480 350`)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.salary) * 1.1])
+                .range([0, width]);
+
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.role))
+                .range([0, height])
+                .padding(0.3);
+
+            // X Axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5).tickFormat(d => "$" + d + "k"))
+                .attr("font-size", "12px")
+                .attr("color", "#718096");
+
+            // Y Axis
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .attr("font-size", "12px")
+                .attr("color", "#718096");
+
+            // Bars with animation and tooltip
+            svg.selectAll(".bar")
+                .data(data)
+                .join("rect")
+                .attr("class", "bar")
+                .attr("x", 0)
+                .attr("y", d => y(d.role))
+                .attr("height", y.bandwidth())
+                .attr("fill", "#4299E1") /* Primary blue color */
+                .attr("width", 0)
+                .on("mouseover", (event, d) => {
+                    tooltip.style("opacity", 1)
+                        .html(`<strong>${d.role}</strong><br>Average Salary: $${d.salary}k`)
+                        .style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                    d3.select(event.currentTarget).attr("fill", "#3182CE"); /* Darker blue on hover */
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", (event) => {
+                    tooltip.style("opacity", 0);
+                    d3.select(event.currentTarget).attr("fill", "#4299E1");
+                })
+                .transition()
+                .duration(1000)
+                .attr("width", d => x(d.salary));
+        })();
+
+        // -------- Gender Distribution (Donut Chart) --------
+        (function () {
+            const data = [
+                { gender: "Male", value: 50 },
+                { gender: "Female", value: 49 },
+                { gender: "Non-binary", value: 1 }
+            ];
+
+            const width = 350;
+            const height = 350;
+            const radius = Math.min(width, height) / 2 - 40;
+
+            const svg = d3.select("#genderChartSvg")
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .append("g")
+                .attr("transform", `translate(${width / 2},${height / 2})`);
+
+            const color = d3.scaleOrdinal()
+                .domain(data.map(d => d.gender))
+                .range(["#4299E1", "#F6AD55", "#9F7AEA"]); /* Blue, Orange, Purple for aesthetic appeal */
+
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null);
+
+            const arc = d3.arc()
+                .innerRadius(radius * 0.6)
+                .outerRadius(radius);
+
+            const arcs = svg.selectAll("arc")
+                .data(pie(data))
+                .join("g");
+
+            arcs.append("path")
+                .attr("fill", d => color(d.data.gender))
+                .attr("d", arc)
+                .attr("stroke", "#FFFFFF") /* Match chart block background for separation */
+                .style("stroke-width", "2px")
+                .transition()
+                .duration(1000)
+                .attrTween("d", function (d) {
+                    const i = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+                    return t => arc(i(t));
+                });
+
+            arcs.append("text")
+                .attr("transform", d => `translate(${arc.centroid(d)})`)
+                .attr("text-anchor", "middle")
+                .attr("dy", "0.35em")
+                .style("font-weight", "600")
+                .style("fill", "#FFFFFF") /* White text for contrast on colored segments */
+                .style("pointer-events", "none")
+                .text(d => `${d.data.gender}: ${d.data.value}%`);
+
+            // Hover effect
+            arcs.on("mouseover", function (event, d) {
+                d3.select(this).select("path")
+                    .transition()
+                    .duration(300)
+                    .attr("d", d3.arc()
+                        .innerRadius(radius * 0.55)
+                        .outerRadius(radius * 1.05));
+                tooltip.style("opacity", 1)
+                    .html(`<strong>${d.data.gender}</strong><br>${d.data.value}%`)
+                    .style("left", (event.pageX + 12) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            }).on("mousemove", (event) => {
+                tooltip.style("left", (event.pageX + 12) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            }).on("mouseout", function () {
+                d3.select(this).select("path")
+                    .transition()
+                    .duration(300)
+                    .attr("d", arc);
+                tooltip.style("opacity", 0);
+            });
+        })();
+
+        // -------- Happiness Radar Chart --------
+        (function () {
+            const labels = ['Salary', 'Work/Life Balance', 'Coworkers', 'Management', 'Mobility', 'Learning'];
+            const dataValues = [5.6, 6.2, 6.0, 5.0, 4.8, 6.5];
+            const maxValue = 7;
+
+            const width = 350;
+            const height = 350;
+            const margin = 50;
+            const radius = Math.min(width, height) / 2 - margin;
+
+            const svg = d3.select("#happinessChartSvg")
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .append("g")
+                .attr("transform", `translate(${width / 2},${height / 2})`);
+
+            const angleSlice = (2 * Math.PI) / labels.length;
+            const rScale = d3.scaleLinear()
+                .range([0, radius])
+                .domain([0, maxValue]);
+
+            // Circular grid
+            const levels = 5;
+            for (let level = 1; level <= levels; level++) {
+                svg.append("circle")
+                    .attr("r", radius / levels * level)
+                    .attr("fill", "none") /* No fill for grid circles */
+                    .attr("stroke", "#E2E8F0") /* Light gray stroke for grid */
+                    .attr("stroke-opacity", 0.8);
+            }
+
+            // Axis lines and labels
+            labels.forEach((label, i) => {
+                const angle = i * angleSlice - Math.PI / 2;
+                const x = rScale(maxValue * 1.1) * Math.cos(angle);
+                const y = rScale(maxValue * 1.1) * Math.sin(angle);
+
+                svg.append("line")
+                    .attr("x1", 0)
+                    .attr("y1", 0)
+                    .attr("x2", rScale(maxValue) * Math.cos(angle))
+                    .attr("y2", rScale(maxValue) * Math.sin(angle))
+                    .attr("stroke", "#CBD5E0") /* Soft gray for axis lines */
+                    .attr("stroke-width", 1);
+
+                svg.append("text")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("dy", "0.35em")
+                    .style("font-size", "11px")
+                    .style("font-weight", "500")
+                    .style("fill", "#718096") /* Muted gray for labels */
+                    .style("text-anchor", x < 0 ? "end" : "start")
+                    .text(label);
+            });
+
+            // Radar line generator
+            const radarLine = d3.lineRadial()
+                .radius(d => rScale(d))
+                .angle((d, i) => i * angleSlice)
+                .curve(d3.curveCatmullRomClosed);
+
+            // Remove glow filter for aesthetic look
+            svg.select("defs").remove();
+
+            // Draw radar area
+            svg.append("path")
+                .datum(dataValues)
+                .attr("d", radarLine)
+                .attr("fill", "rgba(66, 153, 225, 0.2)") /* Softer blue fill */
+                .attr("stroke", "#4299E1") /* Primary blue stroke */
+                .attr("stroke-width", 3);
+
+            // Draw data points
+            svg.selectAll(".radarCircle")
+                .data(dataValues)
+                .join("circle")
+                .attr("class", "radarCircle")
+                .attr("r", 5)
+                .attr("cx", (d, i) => rScale(d) * Math.cos(i * angleSlice - Math.PI / 2))
+                .attr("cy", (d, i) => rScale(d) * Math.sin(i * angleSlice - Math.PI / 2))
+                .attr("fill", "#4299E1") /* Primary blue for points */
+                .on("mouseover", (event, d, i) => {
+                    tooltip.style("opacity", 1)
+                        .html(`<strong>${labels[i]}</strong><br>Score: ${d}`)
+                        .style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.style("opacity", 0);
+                });
+        })();
+
+        // -------- Favorite Programming Languages (Vertical Bar Chart) --------
+        (function () {
+            const data = [
+                { language: "Python", value: 50 },
+                { language: "JavaScript", value: 40 },
+                { language: "Java", value: 30 },
+                { language: "SQL", value: 25 },
+                { language: "C#", value: 15 },
+                { language: "R", value: 10 }
+            ];
+
+            const margin = { top: 40, right: 20, bottom: 50, left: 40 };
+            const width = 480 - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+
+            const svg = d3.select("#languageChartSvg")
+                .attr("viewBox", `0 0 480 350`)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.language))
+                .range([0, width])
+                .padding(0.3);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.value) * 1.1])
+                .range([height, 0]);
+
+            // X Axis
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .attr("font-size", "12px")
+                .attr("color", "#718096");
+
+            // Y Axis
+            svg.append("g")
+                .call(d3.axisLeft(y).ticks(5))
+                .attr("font-size", "12px")
+                .attr("color", "#718096");
+
+            svg.selectAll(".bar")
+                .data(data)
+                .join("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.language))
+                .attr("y", height)
+                .attr("width", x.bandwidth())
+                .attr("height", 0)
+                .attr("fill", "#4299E1") /* Primary blue color */
+                .on("mouseover", (event, d) => {
+                    tooltip.style("opacity", 1)
+                        .html(`<strong>${d.language}</strong><br>Value: ${d.value}`)
+                        .style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                    d3.select(event.currentTarget).attr("fill", "#3182CE"); /* Darker blue on hover */
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", (event.pageX + 12) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", (event) => {
+                    tooltip.style("opacity", 0);
+                    d3.select(event.currentTarget).attr("fill", "#4299E1");
+                })
+                .transition()
+                .duration(1000)
+                .attr("y", d => y(d.value))
+                .attr("height", d => height - y(d.value));
+        })();
+
+        // -------- Country Distribution (Draggable Globe with Versor) --------
+        (function () {
+            const width = 480;
+            const height = 350;
+
+            const svg = d3.select("#globeChartSvg")
+                .attr("viewBox", `0 0 ${width} ${height}`);
+
+            const projection = d3.geoOrthographic()
+                .scale(160)
+                .translate([width / 2, height / 2])
+                .clipAngle(90);
+
+            const path = d3.geoPath(projection);
+
+            // Dummy country data with ISO_A3 codes and values
+            const countryData = [
+                { id: "USA", value: 30 },
+                { id: "IND", value: 25 },
+                { id: "BRA", value: 10 },
+                { id: "RUS", value: 15 },
+                { id: "CHN", value: 20 },
+                { id: "DEU", value: 8 },
+                { id: "GBR", value: 7 },
+                { id: "CAN", value: 5 },
+                { id: "AUS", value: 4 },
+                { id: "FRA", value: 3 }
+            ];
+
+            // Color scale for countries - using interpolateBlues for a softer aesthetic
+            const color = d3.scaleSequential(d3.interpolateBlues)
+                .domain([0, d3.max(countryData, d => d.value)]);
+
+            // Draw sphere (globe base)
+            svg.append("circle")
+                .attr("fill", "#EBF8FF") /* Very light blue for ocean */
+                .attr("stroke", "#A0D9F7") /* Slightly darker blue for globe outline */
+                .attr("stroke-width", 1.5)
+                .attr("cx", width / 2)
+                .attr("cy", height / 2)
+                .attr("r", projection.scale());
+
+            // Draw graticule lines (longitude/latitude)
+            const graticule = d3.geoGraticule10();
+
+            svg.append("path")
+                .datum(graticule)
+                .attr("fill", "none")
+                .attr("stroke", "#E2E8F0") /* Very light graticule lines */
+                .attr("stroke-width", 0.5)
+                .attr("d", path);
+
+            // Load countries topojson and draw
+            d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(worldData => {
+                const countries = topojson.feature(worldData, worldData.objects.countries).features;
+
+                // Draw countries
+                const countryPaths = svg.selectAll("path.country")
+                    .data(countries)
+                    .join("path")
+                    .attr("class", "country")
+                    .attr("fill", d => {
+                        const c = countryData.find(cd => cd.id === d.id || cd.id === d.properties.iso_a3);
+                        return c ? color(c.value) : "#CBD5E0"; /* Default fill for unknown countries */
+                    })
+                    .attr("stroke", "#FFFFFF") /* Match block background for country borders */
+                    .attr("stroke-width", 0.3)
+                    .on("mouseover", (event, d) => {
+                        const c = countryData.find(cd => cd.id === d.id || cd.id === d.properties.iso_a3);
+                        tooltip.style("opacity", 1)
+                            .html(`<strong>${d.properties.name}</strong><br>Count: ${c ? c.value : 0}`)
+                            .style("left", (event.pageX + 12) + "px")
+                            .style("top", (event.pageY - 28) + "px");
+                        d3.select(event.currentTarget).attr("stroke-width", 1.5).attr("fill", "#4299E1"); /* Accent color on hover */
+                    })
+                    .on("mousemove", (event) => {
+                        tooltip.style("left", (event.pageX + 12) + "px")
+                            .style("top", (event.pageY - 28) + "px");
+                    })
+                    .on("mouseout", (event, d) => {
+                        tooltip.style("opacity", 0);
+                        d3.select(event.currentTarget)
+                            .attr("stroke-width", 0.3)
+                            .attr("fill", d => {
+                                const c = countryData.find(cd => cd.id === d.id || cd.id === d.properties.iso_a3);
+                                return c ? color(c.value) : "#CBD5E0";
+                            });
+                    })
+                    .attr("d", path);
+
+                // Drag rotation logic with versor
+                let rotation = [0, 0];
+                let v0, r0;
+
+                const drag = d3.drag()
+                    .on("start", (event) => {
+                        v0 = versor.cartesian(projection.invert([event.x, event.y]));
+                        r0 = rotation;
+                    })
+                    .on("drag", (event) => {
+                        const v1 = versor.cartesian(projection.invert([event.x, event.y]));
+                        if (v0 && v1) {
+                            const q = versor.multiply(versor.rotation(v0, v1), versor.rotation(r0));
+                            rotation = versor.rotationAngles(q);
+                            projection.rotate(rotation);
+                            svg.selectAll("path.country").attr("d", path);
+                            svg.selectAll("path.graticule").attr("d", path);
+                            svg.selectAll("path.graticule10").attr("d", path);
+                        }
+                    });
+
+                svg.call(drag);
+            });
+        })();
+    </script>
+</body>
+</html>
