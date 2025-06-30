@@ -288,24 +288,22 @@
             </div>
             <div class="col-md-8" data-aos="fade-up">
                 <form class="contact-bg" id="contact-form" name="contact" method="POST" action="https://formspree.io/f/xdkzbzop">
-    <!-- Prevent spam -->
-    <input type="hidden" name="_captcha" value="false">
-    <!-- Redirect to thank you page (optional) -->
-    <!-- <input type="hidden" name="_next" value="https://yourdomain.com/thankyou.html"> -->
+                <label>
+                    <input type="text" name="name" class="form-control" placeholder="Your Name" required>
+                </label>
+                <label>
+                    <input type="email" name="email" class="form-control" placeholder="Your E-mail" required>
+                </label>
+                <label>
+                    <input type="text" name="phone" class="form-control" placeholder="Phone Number">
+                </label>
+                <label>
+                    <textarea name="message" class="form-control" placeholder="Your Message" style="height:120px" required></textarea>
+                </label>
+                <button id="submit" type="submit" name="submit" class="btn btn-glance">Send</button>
 
-    <input type="text" name="name" class="form-control" placeholder="Your Name" required />
-    <input type="email" name="email" class="form-control" placeholder="Your E-mail" required />
-    <input type="text" name="phone" class="form-control" placeholder="Phone Number" />
-    <textarea name="message" class="form-control" placeholder="Your Message" style="height:120px" required></textarea>
-    <button id="submit" type="submit" name="submit" class="btn btn-glance">Send</button>
-
-    <div id="success">
-        <p class="green textcenter">Your message was sent successfully! I will be in touch as soon as I can.</p>
-    </div>
-    <div id="error">
-        <p>Something went wrong, try refreshing and submitting the form again.</p>
-    </div>
-</form>
+  <!-- Optional success/error messages can be managed using JS if needed -->
+                </form>
             </div>
         </div>
     </div>
