@@ -2,15 +2,6 @@
 <html lang="en">
 
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2NJCVDSMMX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-2NJCVDSMMX');
-</script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -201,6 +192,17 @@
                             </nav>
                         </div>
                         <!-- portfolio_filter -->
+                         <div class="col-md-4 col-sm-6 ads graphics">
+                                <a id="demo-cleaning" href="churn.html" class="portfolio_item"><img src="img\churn2.png" alt="image" class="img-responsive" />
+                                    <div class="portfolio_item_hover">
+                                        <div class="portfolio-border clearfix">
+                                            <div class="item_info"> 
+                                            <span>Customer Churn Prediction App</span> 
+                                            <em>Machine Learning</em> </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
                         
                             <!-- Data Cleaning Project Tile -->
                             <div class="col-md-4 col-sm-6 graphics">
@@ -297,22 +299,24 @@
             </div>
             <div class="col-md-8" data-aos="fade-up">
                 <form class="contact-bg" id="contact-form" name="contact" method="POST" action="https://formspree.io/f/xdkzbzop">
-                <label>
-                    <input type="text" name="name" class="form-control" placeholder="Your Name" required>
-                </label>
-                <label>
-                    <input type="email" name="email" class="form-control" placeholder="Your E-mail" required>
-                </label>
-                <label>
-                    <input type="text" name="phone" class="form-control" placeholder="Phone Number">
-                </label>
-                <label>
-                    <textarea name="message" class="form-control" placeholder="Your Message" style="height:120px" required></textarea>
-                </label>
-                <button id="submit" type="submit" name="submit" class="btn btn-glance">Send</button>
+    <!-- Prevent spam -->
+    <input type="hidden" name="_captcha" value="false">
+    <!-- Redirect to thank you page (optional) -->
+    <!-- <input type="hidden" name="_next" value="https://yourdomain.com/thankyou.html"> -->
 
-  <!-- Optional success/error messages can be managed using JS if needed -->
-                </form>
+    <input type="text" name="name" class="form-control" placeholder="Your Name" required />
+    <input type="email" name="email" class="form-control" placeholder="Your E-mail" required />
+    <input type="text" name="phone" class="form-control" placeholder="Phone Number" />
+    <textarea name="message" class="form-control" placeholder="Your Message" style="height:120px" required></textarea>
+    <button id="submit" type="submit" name="submit" class="btn btn-glance">Send</button>
+
+    <div id="success">
+        <p class="green textcenter">Your message was sent successfully! I will be in touch as soon as I can.</p>
+    </div>
+    <div id="error">
+        <p>Something went wrong, try refreshing and submitting the form again.</p>
+    </div>
+</form>
             </div>
         </div>
     </div>
