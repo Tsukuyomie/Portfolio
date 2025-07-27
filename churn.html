@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer Churn Prediction</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="ionicons/css/ionicons.min.css" rel="stylesheet">
+  <link href="css/animate.min.css" rel="stylesheet">
+  <link href="css/aos.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id="animatedModalChurn" class="popup-modal">
+    <div id="btn-close-modal" class="close-animatedModal close-popup-modal">
+      <i class="ion-close-round"></i>
+    </div>
+    <div class="clearfix"></div>
+    <div class="modal-content">
+      <div class="container">
+        <div class="portfolio-padding">
+          <div class="col-md-8 col-md-offset-2">
+            <h2>Customer Churn Prediction</h2>
+            <div class="h-50"></div>
+
+            <p><strong>Project:</strong> Predicting telecom customer churn using machine learning</p>
+            <p><strong>Tools & Technologies:</strong> Python, Scikit-learn, Pandas, Streamlit</p>
+
+            <ul>
+              <li>Performed EDA and data cleaning</li>
+              <li>Used Random Forest feature importance to select top 4 features</li>
+              <li>Trained model on MonthlyCharges, Tenure, TotalCharges, Contract</li>
+              <li>Deployed prediction tool using Streamlit</li>
+            </ul>
+
+            <br />
+            <img src="img\feature_importance.png" alt="Feature Importance" class="img-responsive" />
+            <br />
+
+            <h4>Glimpse of Code:</h4>
+            <pre><code>import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+import joblib
+
+df = pd.read_csv("dataset.csv")
+df['TotalCharges'] = pd.to_numeric(df['TotalCharges'].replace(' ', pd.NA), errors='coerce')
+df = df.dropna(subset=['TotalCharges'])
+
+df['Contract'] = LabelEncoder().fit_transform(df['Contract'])
+df['Churn'] = LabelEncoder().fit_transform(df['Churn'])
+
+features = ['MonthlyCharges', 'tenure', 'TotalCharges', 'Contract']
+X, y = df[features], df['Churn']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = RandomForestClassifier(n_estimators=100).fit(X_train, y_train)
+joblib.dump(model, "top4_churn_model.pkl")
+joblib.dump(features, "top4_features.pkl")
+            </code></pre>
+
+            <br />
+            <p>
+              <strong>Live App:</strong>
+              <a href="https://churn-prediction-model-app-eta4bdwkaqcjkj3cjj9hz6.streamlit.app/" target="_blank">
+                Try the Churn Calculator
+              </a>
+            </p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
