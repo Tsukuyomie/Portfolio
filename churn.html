@@ -11,7 +11,6 @@
   <link href="css/animate.min.css" rel="stylesheet" />
   <link href="css/aos.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet" />
-  
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
@@ -21,7 +20,7 @@
       color: #000000;
       font-family: 'Segoe UI', sans-serif;
     }
-    h2, h4 {
+    h2, h3, h4 {
       color: #060c0c;
     }
     a {
@@ -60,6 +59,63 @@
             </ul>
 
             <br />
+
+            <h3>Why is it Important to Know Customer Churn?</h3>
+            <p>
+              Customer churn directly impacts revenue and growth. On average, acquiring a new customer costs
+              <strong>5–7 times more</strong> than retaining an existing one. Studies show that even a
+              <strong>5% increase in retention</strong> can boost profits by <strong>25–95%</strong>.
+              Globally, telecom churn rates hover around <strong>15–25%</strong>, while subscription businesses
+              see an average of <strong>6–8%</strong> monthly churn.
+            </p>
+
+            <div id="industry-churn" style="width: 100%; height: 500px;"></div>
+            <div id="revenue-impact" style="width: 100%; height: 500px;"></div>
+            <div id="clv-impact" style="width: 100%; height: 500px;"></div>
+
+            <script>
+              // Chart 1: Average churn by industry
+              const industries = ['Telecom', 'SaaS', 'Retail', 'Banking', 'Streaming'];
+              const churnRates = [20, 8, 15, 12, 10];
+              Plotly.newPlot('industry-churn', [{
+                x: industries,
+                y: churnRates,
+                type: 'bar',
+                marker: {color: ['#e63946','#457b9d','#2a9d8f','#f4a261','#6d6875']}
+              }], {
+                title: 'Average Churn Rates Across Industries (%)',
+                yaxis: {title: 'Churn Rate (%)'}
+              });
+
+              // Chart 2: Revenue impact of churn vs retention
+              const scenarios = ['High Churn (20%)', 'Moderate Churn (10%)', 'Low Churn (5%)'];
+              const revenue = [60, 80, 95];
+              Plotly.newPlot('revenue-impact', [{
+                x: scenarios,
+                y: revenue,
+                type: 'bar',
+                marker: {color: ['#e76f51','#f4a261','#2a9d8f']}
+              }], {
+                title: 'Revenue Retention Based on Churn Scenario (Index 100)',
+                yaxis: {title: 'Revenue Retained'}
+              });
+
+              // Chart 3: CLV with churn reduction
+              const churnLevels = ['20% Churn', '15% Churn', '10% Churn', '5% Churn'];
+              const clv = [100, 130, 160, 200];
+              Plotly.newPlot('clv-impact', [{
+                x: churnLevels,
+                y: clv,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: {shape: 'spline', color: '#264653'}
+              }], {
+                title: 'Customer Lifetime Value (CLV) with Reduced Churn (Index 100)',
+                yaxis: {title: 'CLV Index'}
+              });
+            </script>
+
+            <br />
             <div id="radial-chart" style="width: 100%; height: 600px;"></div>
             <script>
               const features = [
@@ -74,7 +130,7 @@
                 0.028, 0.028, 0.026
               ];
 
-              const r = importances.map(v => v * 100); // scale to percentage
+              const r = importances.map(v => v * 100);
               const theta = features;
 
               const softColors = [
@@ -89,10 +145,7 @@
                 theta: theta,
                 marker: {
                   color: softColors,
-                  line: {
-                    color: '#ffffff',
-                    width: 1.2
-                  }
+                  line: {color: '#ffffff', width: 1.2}
                 },
                 text: importances.map(i => (i * 100).toFixed(1) + '%'),
                 hoverinfo: 'text+theta'
@@ -101,14 +154,9 @@
               const layout = {
                 title: {
                   text: 'Feature Importance - Polar View',
-                  font: {
-                    size: 22,
-                    color: '#000'
-                  }
+                  font: {size: 22, color: '#000'}
                 },
-                font: {
-                  color: '#000'
-                },
+                font: {color: '#000'},
                 paper_bgcolor: '#fffff',
                 polar: {
                   bgcolor: '#1f2833',
@@ -129,8 +177,8 @@
 
               Plotly.newPlot('radial-chart', [trace], layout, { responsive: true });
             </script>
-            <br />
 
+            <br />
             <h4>Glimpse of Code:</h4>
             <pre><code>import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -138,21 +186,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import joblib
 
-df = pd.read_csv("dataset.csv")
-df['TotalCharges'] = pd.to_numeric(df['TotalCharges'].replace(' ', pd.NA), errors='coerce')
-df = df.dropna(subset=['TotalCharges'])
-
-df['Contract'] = LabelEncoder().fit_transform(df['Contract'])
-df['Churn'] = LabelEncoder().fit_transform(df['Churn'])
-
-features = ['MonthlyCharges', 'tenure', 'TotalCharges', 'Contract']
-X, y = df[features], df['Churn']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-model = RandomForestClassifier(n_estimators=100).fit(X_train, y_train)
-joblib.dump(model, "top4_churn_model.pkl")
-joblib.dump(features, "top4_features.pkl")
-            </code></pre>
+# Data preprocessing and training steps...</code></pre>
 
             <br />
             <p>
