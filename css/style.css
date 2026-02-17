@@ -57,6 +57,16 @@ body {
     height: 50px;
 }
 
+.portfolio_item_hover {
+    pointer-events: none; /* Add this line */
+}
+
+.portfolio_item {
+    display: block;    /* Ensure the link fills the whole box */
+    position: relative;
+    z-index: 10;
+}
+
 
 /* preloader
 ==================================================*/
