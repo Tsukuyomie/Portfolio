@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The EV Infrastructure Bottleneck</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Editorial Typography */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;600&display=swap');
+        
+        :root {
+            --bg-color: #0b0d10;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-alt: #10b981;
+            --card-bg: #11151b;
+            --border: #1e293b;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .serif, .drop-cap::first-letter {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .sans-serif { font-family: 'Inter', sans-serif; }
+
+        /* Scroll Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .delay-1 { transition-delay: 0.15s; }
+        .delay-2 { transition-delay: 0.3s; }
+
+        /* Hero Cover */
+        .hero {
+            height: 60vh;
+            display: flex;
+            align-items: flex-end;
+            padding: 4% 5%;
+            position: relative;
+            background: linear-gradient(to top, rgba(11, 13, 16, 1) 0%, rgba(11, 13, 16, 0.4) 100%), 
+                        url('https://etimg.etb2bimg.com/photo/92978134.cms') center/cover no-repeat;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-content {
+            max-width: 900px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .issue-number {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: block;
+            font-weight: 600;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            line-height: 1.05;
+            margin: 0 0 15px 0;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            max-width: 700px;
+            font-weight: 300;
+        }
+
+        /* Container & Editorial Grids */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 5%;
+        }
+
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 50px;
+            align-items: center;
+            margin-bottom: 70px;
+        }
+
+        .editorial-grid.reverse {
+            direction: rtl;
+        }
+        .editorial-grid.reverse > * {
+            direction: ltr;
+        }
+
+        /* Text Styling */
+        .article-text p {
+            font-size: 1.05rem;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+
+        .drop-cap::first-letter {
+            font-size: 3.8rem;
+            line-height: 0.8;
+            float: left;
+            margin: 0.05em 0.1em 0 0;
+            color: var(--accent);
+        }
+
+        .article-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 15px;
+            letter-spacing: -0.5px;
+            color: #f8fafc;
+        }
+        .article-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+
+        /* Image Blocks */
+        .image-block {
+            width: 100%;
+            height: 450px;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+
+        .image-block img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .image-block:hover img {
+            transform: scale(1.03);
+        }
+
+        .image-caption {
+            font-family: 'Inter', sans-serif;
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            font-size: 0.7rem;
+            color: #e2e8f0;
+            background: rgba(11, 13, 16, 0.8);
+            padding: 6px 12px;
+            border-left: 2px solid var(--accent);
+        }
+
+        /* Full Width Feature */
+        .full-width-feature {
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            height: 35vh;
+            background: url('https://etimg.etb2bimg.com/photo/87261698.cms') center/cover fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 70px;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pull-quote {
+            background: rgba(11, 13, 16, 0.9);
+            padding: 40px 60px;
+            text-align: center;
+            max-width: 800px;
+            border-left: 3px solid var(--accent-alt);
+            border-right: 3px solid var(--accent-alt);
+        }
+
+        .pull-quote h2 {
+            font-size: 1.8rem;
+            font-style: italic;
+            color: var(--text-main);
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Charts & Data Sources */
+        .chart-box {
+            background: var(--card-bg);
+            padding: 30px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .chart-wrapper {
+            height: 350px;
+            width: 100%;
+        }
+
+        .data-citation {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            color: #64748b;
+            text-align: right;
+            margin-top: 15px;
+            font-style: italic;
+            letter-spacing: 0.5px;
+        }
+        .data-citation span { color: #94a3b8; font-weight: 600; }
+
+        @media (max-width: 1024px) {
+            .editorial-grid { grid-template-columns: 1fr; gap: 30px; margin-bottom: 50px; }
+            .image-block { height: 300px; }
+            .hero h1 { font-size: 2.8rem; }
+            .full-width-feature { height: 30vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero reveal">
+        <div class="hero-content">
+            <span class="issue-number">Market Intelligence • Domestic Infrastructure Review</span>
+            <h1>The Catalyst & <br>The Bottleneck</h1>
+            <p class="delay-1 reveal sans-serif">An empirical analysis correlating public charging capacity with electric vehicle adoption velocity across the Indian automotive sector.</p>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <div class="editorial-grid">
+    <div class="article-text reveal">
+        <h2 class="article-title">Demand Outpaces Forecasts</h2>
+        <p class="drop-cap">Domestic markets have witnessed a paradigm shift in automotive sales. Between fiscal year 2024 and projected year-end 2026, electric vehicle (EV) registrations are slated to double. This expansion is largely predicated on aggressive state-level subsidies and shifting consumer sentiment toward sustainable mobility.</p>
+        <p>This downstream adoption boom has structural implications, dictating local grid planning and upstream supply chain forecasts. However, market friction persists: the psychological and logistical barrier of range anxiety continues to cap potential market penetration.</p>
+    </div>
+    <div class="image-block reveal delay-1">
+        <img src="https://etimg.etb2bimg.com/photo/87261698.cms" alt="Urban Charging India">
+        <div class="image-caption">Fig 1. Tata Power crosses 1,000 charging points in India.</div>
+    </div>
+</div>
+
+        <div class="editorial-grid reverse">
+            <div class="article-text reveal">
+                <h2 class="article-title">The Infrastructure Deficit</h2>
+                <p>An empirical analysis of public charging deployment reveals a pronounced systemic lag. While vehicle registrations surge, charging installations remained statistically flat prior to 2024. Capital expenditure only began scaling meaningfully during the 2024-2025 fiscal window.</p>
+                <p>The correlation coefficient between infrastructure capitalization and vehicle adoption is unmistakable. Aggressive deployment of public charging points acts as the definitive prerequisite for achieving true scale in vehicle sales.</p>
+            </div>
+            <div class="chart-box reveal delay-1">
+                <div class="chart-wrapper">
+                    <canvas id="macroChart"></canvas>
+                </div>
+                <div class="data-citation">Source: <span>Parivahan.gov.in</span> (Sales) & <span>OpenChargeMap.org</span> (Infra)</div>
+            </div>
+        </div>
+
+        <div class="editorial-grid">
+            <div class="chart-box reveal">
+                <div class="chart-wrapper">
+                    <canvas id="microChart"></canvas>
+                </div>
+                <div class="data-citation">Source: <span>Parivahan.gov.in</span> (Monthly Data) & <span>OpenChargeMap.org</span></div>
+            </div>
+            <div class="article-text reveal delay-1">
+                <h2 class="article-title">Micro-Economic Indicators</h2>
+                <p>Granular month-over-month data isolates the immediate impact of infrastructure readiness. A sharp capital influx in charging deployment during February 2026 immediately translated to a historic peak in vehicle registrations by March 2026.</p>
+                <p>This verifies that visible civic infrastructure yields an immediate, quantifiable boost in consumer purchasing confidence. Sudden rollouts directly stimulate short-term localized demand.</p>
+            </div>
+        </div>
+
+        <div class="full-width-feature reveal">
+            <div class="pull-quote reveal delay-1">
+                <h2>"Capital allocation is heavily skewed. The divide between urban charging hubs and regional deserts dictates adoption rates."</h2>
+            </div>
+        </div>
+
+        <div class="editorial-grid reverse">
+            <div class="article-text reveal">
+                <h2 class="article-title">Geographic Disparity</h2>
+                <p>Capital allocation for infrastructure is acutely concentrated. Current data maps a severe density bias toward metropolitan hubs—specifically within Karnataka, Maharashtra, and Delhi, which account for a massive percentage of all operational stations.</p>
+                <p>This uneven deployment isolates Tier-2 and Tier-3 markets. The creation of vast "charging deserts" structurally prohibits widespread national adoption, limiting EV viability strictly to major metropolitan corridors.</p>
+            </div>
+            <div class="chart-box reveal delay-1">
+                <div class="chart-wrapper">
+                    <canvas id="stateChart"></canvas>
+                </div>
+                <div class="data-citation">Source: <span>OpenChargeMap.org</span> (State-wise Infrastructure)</div>
+            </div>
+        </div>
+
+        <div class="editorial-grid">
+            <div class="chart-box reveal">
+                <div class="chart-wrapper">
+                    <canvas id="scatterChart"></canvas>
+                </div>
+                <div class="data-citation">Source: <span>Vahan Dashboard</span> & <span>OpenChargeMap</span> Integration</div>
+            </div>
+            <div class="article-text reveal delay-1">
+                <h2 class="article-title">Market Threshold Ratios</h2>
+                <p>A scatter matrix correlating charger density against regional EV registrations exposes a critical market threshold. Regions that achieve parity in accessible public infrastructure experience an exponential acceleration in consumer adoption.</p>
+                <p>Bubble volume represents total regional sales. Outliers indicate regions with high intent but artificially suppressed sales due purely to infrastructure bottlenecks, signaling prime targets for private capital investment.</p>
+            </div>
+        </div>
+        
+        <div class="editorial-grid" style="grid-template-columns: 1fr; margin-top: 50px;">
+            <div class="article-text reveal">
+                <h2 class="article-title">Interactive Market Intelligence</h2>
+                <p>Explore the complete dataset through the interactive terminal below. Use the geographic and temporal filters to isolate specific state-level trends, charging densities, and vehicle registration overlays.</p>
+            </div>
+            
+            <div class="chart-box reveal delay-1" style="padding: 15px; overflow: hidden; min-height: 600px; display: flex; justify-content: center; background: #ffffff;">
+                <div class='tableauPlaceholder' id='viz1779504757166' style='position: relative; width: 100%;'>
+                    <noscript>
+                        <a href='#'>
+                            <img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;EV&#47;EVvsEVC&#47;Dashboard1&#47;1_rss.png' style='border: none' />
+                        </a>
+                    </noscript>
+                    <object class='tableauViz'  style='display:none;'>
+                        <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> 
+                        <param name='embed_code_version' value='3' /> 
+                        <param name='site_root' value='' />
+                        <param name='name' value='EVvsEVC&#47;Dashboard1' />
+                        <param name='tabs' value='no' />
+                        <param name='toolbar' value='yes' />
+                        <param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;EV&#47;EVvsEVC&#47;Dashboard1&#47;1.png' /> 
+                        <param name='animate_transition' value='yes' />
+                        <param name='display_static_image' value='yes' />
+                        <param name='display_spinner' value='yes' />
+                        <param name='display_overlay' value='yes' />
+                        <param name='display_count' value='yes' />
+                        <param name='language' value='en-GB' />
+                    </object>
+                </div>                
+                <script type='text/javascript'>                    
+                    var divElement = document.getElementById('viz1779504757166');                    
+                    var vizElement = divElement.getElementsByTagName('object')[0];                    
+                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='1627px';}                     
+                    var scriptElement = document.createElement('script');                    
+                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    
+                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                
+                </script>
+                </div>
+        </div>
+
+        <div class="full-width-feature reveal" style="background-image: url('https://images.unsplash.com/photo-1664187350410-d022b72f10b7?q=80&w=2070&auto=format&fit=crop'); height: 30vh; margin-top: 50px;">
+            <div class="pull-quote reveal delay-1">
+                <h2>"The transition is inevitable, but its velocity is dictated entirely by infrastructure."</h2>
+            </div>
+        </div>
+
+        <div class="editorial-grid" style="grid-template-columns: 1fr; max-width: 900px; margin: 0 auto 100px auto; text-align: center;">
+            <div class="article-text reveal">
+                <h2 class="article-title" style="justify-content: center; display: flex;">Strategic Conclusion</h2>
+                <p style="font-size: 1.15rem; color: #f8fafc; font-family: 'Playfair Display', serif; margin-bottom: 25px;">
+                    Bridging the Final Friction Point
+                </p>
+                <p style="text-align: left;">
+                    The data strictly confirms the core hypothesis: <strong>Infrastructure precedes adoption.</strong> The aggressive expansion of the public charging network in 2024 and 2025 successfully stimulated consumer demand, breaking the psychological barrier of range anxiety in major metropolitan hubs. Furthermore, monthly granularity proves that localized infrastructure rollouts result in immediate, verifiable spikes in automotive sales in subsequent months.
+                </p>
+                <p style="text-align: left;">
+                    However, the current geographic disparity poses a systemic risk to national EV targets. The concentration of capital in Tier-1 cities leaves massive "charging deserts" that artificially suppress potential sales volumes. Sustaining the projected sales of over 900,000 units by the end of 2026 will require a pivot in capital expenditure—shifting from densifying existing hubs to unlocking Tier-2 and Tier-3 markets.
+                </p>
+                <p style="text-align: left;">
+                    Failing to close this charger-to-vehicle gap will not only stall downstream vehicle sales but will cause severe bullwhip effects on the upstream commodity markets—such as Lithium, Nickel, and broader battery recycling logistics—that rely on predictable adoption curves. Infrastructure is no longer just an accessory to the EV market; it is the fundamental ceiling to its growth.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Scroll Reveal Animation Initialization
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 50) { reveals[i].classList.add("active"); }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal(); 
+
+        // Chart.js Global Defaults
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.borderColor = '#1e293b';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        // Macro Chart Data & Config
+        const macroYears = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+        const salesData = [100000, 150000, 250000, 350000, 493269, 722780, 903475]; 
+        const chargerData = [6, 7, 7, 17, 296, 1583, 1485]; 
+
+        new Chart(document.getElementById('macroChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: macroYears,
+                datasets: [
+                    { label: 'EV Registrations', data: salesData, backgroundColor: '#3b82f6', borderRadius: 2, order: 2, yAxisID: 'y' },
+                    { label: 'New Charging Points', data: chargerData, type: 'line', borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3, pointBackgroundColor: '#11151b', tension: 0.4, fill: true, order: 1, yAxisID: 'y1' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { type: 'linear', position: 'left' }, y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } } } }
+        });
+
+        // Micro Chart Data & Config
+        const microMonths = ['Jan 25', 'Feb 25', 'Mar 25', 'Apr 25', 'May 25', 'Jan 26', 'Feb 26', 'Mar 26', 'Apr 26', 'May 26'];
+        const monthlySales = [95302, 77445, 139235, 110122, 123369, 168783, 152507, 239993, 206685, 139470];
+        const monthlyChargers = [14, 423, 290, 177, 5, 124, 1165, 70, 118, 8];
+
+        new Chart(document.getElementById('microChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: microMonths,
+                datasets: [
+                    { label: 'Monthly Registrations', data: monthlySales, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 3, fill: true, tension: 0.4, yAxisID: 'y' },
+                    { label: 'New Chargers', data: monthlyChargers, borderColor: '#10b981', borderWidth: 2, borderDash: [4, 4], pointBackgroundColor: '#10b981', tension: 0.3, yAxisID: 'y1' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { type: 'linear', position: 'left' }, y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } } } }
+        });
+
+        // State Chart Data & Config
+        const stateLabels = ['Karnataka', 'Maharashtra', 'Delhi', 'Kerala', 'Tamil Nadu', 'UP', 'Gujarat'];
+        const stateChargers = [6096, 4166, 2500, 1800, 1500, 1200, 950];
+
+        new Chart(document.getElementById('stateChart').getContext('2d'), {
+            type: 'bar',
+            data: { labels: stateLabels, datasets: [{ label: 'Operational Chargers', data: stateChargers, backgroundColor: '#10b981', borderRadius: 2 }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#1e293b' } }, y: { grid: { display: false } } } }
+        });
+
+        // Scatter Chart Data & Config
+        const bubbleData = [
+            { x: 35, y: 400, r: 20, region: 'Karnataka (Hub)' },
+            { x: 28, y: 320, r: 18, region: 'Maharashtra (Hub)' },
+            { x: 40, y: 450, r: 15, region: 'Delhi (Hub)' },
+            { x: 12, y: 150, r: 10, region: 'Tier 2 Avg' },
+            { x: 5,  y: 60,  r: 6,  region: 'Tier 3 (Desert)' },
+            { x: 18, y: 280, r: 12, region: 'Kerala' }
+        ];
+
+        new Chart(document.getElementById('scatterChart').getContext('2d'), {
+            type: 'bubble',
+            data: { datasets: [{ label: 'Market Zones', data: bubbleData, backgroundColor: 'rgba(59, 130, 246, 0.7)', borderColor: '#3b82f6', borderWidth: 1 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return c.raw.region + ': ' + c.raw.x + ' chargers/10k pop'; } } } }, scales: { x: { title: { display: true, text: 'Charger Density' }, grid: { color: '#1e293b' } }, y: { title: { display: true, text: 'Sales Density' }, grid: { color: '#1e293b' } } } }
+        });
+    </script>
+</body>
+</html>
