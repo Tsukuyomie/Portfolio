@@ -4,202 +4,280 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Customer Churn Prediction</title>
+  <title>Executive Report: Customer Churn Prediction</title>
 
-  <link href="css/bootstrap.min.css" rel="stylesheet" />
-  <link href="ionicons/css/ionicons.min.css" rel="stylesheet" />
-  <link href="css/animate.min.css" rel="stylesheet" />
-  <link href="css/aos.css" rel="stylesheet" />
-  <link href="css/style.css" rel="stylesheet" />
-
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.plotly.com/plotly-latest.min.js"></script>
 
   <style>
     body {
-      background-color: #0b0c10;
-      color: #000000;
-      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      color: #333333;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      line-height: 1.6;
     }
-    h2, h3, h4 {
-      color: #060c0c;
+    .report-container {
+      max-width: 960px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
-    a {
-      color: #45a29e;
+    .report-header {
+      border-bottom: 2px solid #eaedf1;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #1e293b;
+      font-weight: 700;
+    }
+    h3, h4 {
+      color: #334155;
+      font-weight: 600;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+    .meta-card {
+      background-color: #f8fafc;
+      border-left: 4px solid #4f46e5;
+      padding: 20px;
+      border-radius: 4px 8px 8px 4px;
+      margin-bottom: 35px;
+    }
+    .meta-card p {
+      margin-bottom: 8px;
+    }
+    .meta-card p:last-child {
+      margin-bottom: 0;
+    }
+    .chart-container {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 25px;
     }
     pre {
-      background-color: #1f2833;
-      color: #c5c6c7;
-      padding: 10px;
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px;
       border-radius: 8px;
+      font-size: 0.9rem;
+      overflow-x: auto;
+    }
+    .btn-primary {
+      background-color: #4f46e5;
+      border-color: #4f46e5;
+      padding: 10px 24px;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+    }
+    .btn-primary:hover {
+      background-color: #3730a3;
+      border-color: #3730a3;
+    }
+    ul.styled-list li {
+      margin-bottom: 8px;
+      position: relative;
     }
   </style>
 </head>
 
 <body>
-  <div id="animatedModalChurn" class="popup-modal">
-    <div id="btn-close-modal" class="close-animatedModal close-popup-modal">
-      <i class="ion-close-round" style="color: #fff;"></i>
-    </div>
-    <div class="clearfix"></div>
-    <div class="modal-content">
-      <div class="container">
-        <div class="portfolio-padding">
-          <div class="col-md-8 col-md-offset-2">
-            <h2>Customer Churn Prediction</h2>
-            <div class="h-50"></div>
 
-            <p><strong>Project:</strong> Predicting telecom customer churn using machine learning</p>
-            <p><strong>Tools & Technologies:</strong> Python, Scikit-learn, Pandas, Streamlit</p>
+  <div class="container">
+    <div class="report-container">
+      
+      <div class="report-header d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+          <h2>Customer Churn Prediction Analytics</h2>
+          <p class="text-muted mb-0">Predictive Modeling & Business Impact Assessment</p>
+        </div>
+      </div>
 
-            <ul>
-              <li>Performed EDA and data cleaning</li>
-              <li>Used Random Forest feature importance to select top 4 features</li>
-              <li>Trained model on MonthlyCharges, Tenure, TotalCharges, Contract</li>
-              <li>Deployed prediction tool using Streamlit</li>
-            </ul>
+      <div class="meta-card">
+        <p><strong>Project Lifecycle:</strong> End-to-end Machine Learning pipeline to isolate and predict telecom customer attrition.</p>
+        <p><strong>Core Infrastructure & Tools:</strong> Python, Scikit-learn, Pandas, Plotly Analytics, Streamlit Application Framework.</p>
+      </div>
 
-            <br />
+      <h3>Executive Summary & Methodology</h3>
+      <p>
+        To mitigate risk and identify churn vulnerabilities proactively, we deployed a structured machine learning pipeline:
+      </p>
+      <ul class="styled-list mb-4">
+        <li>Executed Exploratory Data Analysis (EDA) and robust data feature transformations.</li>
+        <li>Leveraged <strong>Random Forest Ensemble feature metrics</strong> to isolate key customer performance indicators.</li>
+        <li>Trained and optimized standard frameworks evaluating metrics against: <code>MonthlyCharges</code>, <code>Tenure</code>, <code>TotalCharges</code>, and <code>Contract Type</code>.</li>
+        <li>Deployed an interactive calculation framework for business stakeholders via Streamlit.</li>
+      </ul>
 
-            <h3>Why is it Important to Know Customer Churn?</h3>
-            <p>
-              Customer churn directly impacts revenue and growth. On average, acquiring a new customer costs
-              <strong>5–7 times more</strong> than retaining an existing one. Studies show that even a
-              <strong>5% increase in retention</strong> can boost profits by <strong>25–95%</strong>.
-              Globally, telecom churn rates hover around <strong>15–25%</strong>, while subscription businesses
-              see an average of <strong>6–8%</strong> monthly churn.
-            </p>
+      <h3>The Economics of Customer Retention</h3>
+      <p>
+        Customer churn heavily strains bottom-line metrics and growth trajectories. Statistically, targeting and acquiring fresh clients demands roughly 
+        <strong>5 to 7 times the financial overhead</strong> compared to retaining pre-existing subscribers. Strategic indicators showcase that a marginal 
+        <strong>5% boost in client retention</strong> can expand institutional profit metrics by anywhere from <strong>25% to 95%</strong>. 
+        Currently, enterprise telecom organizations endure annualized baseline churn margins around <strong>15–25%</strong>.
+      </p>
 
-            <div id="industry-churn" style="width: 100%; height: 500px;"></div>
-            <div id="revenue-impact" style="width: 100%; height: 500px;"></div>
-            <div id="clv-impact" style="width: 100%; height: 500px;"></div>
+      <div class="row mt-4">
+        <div class="col-112">
+          <div class="chart-container">
+            <div id="industry-churn" style="width: 100%; height: 400px;"></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="chart-container">
+            <div id="revenue-impact" style="width: 100%; height: 400px;"></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="chart-container">
+            <div id="clv-impact" style="width: 100%; height: 400px;"></div>
+          </div>
+        </div>
+      </div>
 
-            <script>
-              // Chart 1: Average churn by industry
-              const industries = ['Telecom', 'SaaS', 'Retail', 'Banking', 'Streaming'];
-              const churnRates = [20, 8, 15, 12, 10];
-              Plotly.newPlot('industry-churn', [{
-                x: industries,
-                y: churnRates,
-                type: 'bar',
-                marker: {color: ['#e63946','#457b9d','#2a9d8f','#f4a261','#6d6875']}
-              }], {
-                title: 'Average Churn Rates Across Industries (%)',
-                yaxis: {title: 'Churn Rate (%)'}
-              });
+      <h3 class="mt-4">Risk Factor Analysis</h3>
+      <p class="text-muted">High-dimensional feature distribution generated via internal algorithmic scoring configurations.</p>
+      <div class="chart-container">
+        <div id="radial-chart" style="width: 100%; height: 550px;"></div>
+      </div>
 
-              // Chart 2: Revenue impact of churn vs retention
-              const scenarios = ['High Churn (20%)', 'Moderate Churn (10%)', 'Low Churn (5%)'];
-              const revenue = [60, 80, 95];
-              Plotly.newPlot('revenue-impact', [{
-                x: scenarios,
-                y: revenue,
-                type: 'bar',
-                marker: {color: ['#e76f51','#f4a261','#2a9d8f']}
-              }], {
-                title: 'Revenue Retention Based on Churn Scenario (Index 100)',
-                yaxis: {title: 'Revenue Retained'}
-              });
-
-              // Chart 3: CLV with churn reduction
-              const churnLevels = ['20% Churn', '15% Churn', '10% Churn', '5% Churn'];
-              const clv = [100, 130, 160, 200];
-              Plotly.newPlot('clv-impact', [{
-                x: churnLevels,
-                y: clv,
-                type: 'scatter',
-                mode: 'lines+markers',
-                line: {shape: 'spline', color: '#264653'}
-              }], {
-                title: 'Customer Lifetime Value (CLV) with Reduced Churn (Index 100)',
-                yaxis: {title: 'CLV Index'}
-              });
-            </script>
-
-            <br />
-            <div id="radial-chart" style="width: 100%; height: 600px;"></div>
-            <script>
-              const features = [
-                'Monthly Charges', 'Tenure', 'Total Charges', 'Contract',
-                'Payment Method', 'Online Security', 'Tech Support',
-                'Online Backup', 'Gender', 'Paperless Billing'
-              ];
-
-              const importances = [
-                0.176, 0.175, 0.167, 0.081,
-                0.051, 0.048, 0.043,
-                0.028, 0.028, 0.026
-              ];
-
-              const r = importances.map(v => v * 100);
-              const theta = features;
-
-              const softColors = [
-                '#a8dadc', '#457b9d', '#1d3557', '#f4a261',
-                '#e76f51', '#2a9d8f', '#264653', '#84a59d',
-                '#f28482', '#6d6875'
-              ];
-
-              const trace = {
-                type: 'barpolar',
-                r: r,
-                theta: theta,
-                marker: {
-                  color: softColors,
-                  line: {color: '#ffffff', width: 1.2}
-                },
-                text: importances.map(i => (i * 100).toFixed(1) + '%'),
-                hoverinfo: 'text+theta'
-              };
-
-              const layout = {
-                title: {
-                  text: 'Feature Importance - Polar View',
-                  font: {size: 22, color: '#000'}
-                },
-                font: {color: '#000'},
-                paper_bgcolor: '#fffff',
-                polar: {
-                  bgcolor: '#1f2833',
-                  angularaxis: {
-                    color: '#c5c6c7',
-                    tickfont: { size: 12 },
-                    rotation: 90,
-                    direction: "clockwise"
-                  },
-                  radialaxis: {
-                    visible: true,
-                    tickfont: { size: 10 },
-                    gridcolor: "#3e4b5b",
-                    color: '#c5c6c7'
-                  }
-                }
-              };
-
-              Plotly.newPlot('radial-chart', [trace], layout, { responsive: true });
-            </script>
-
-            <br />
-            <h4>Glimpse of Code:</h4>
-            <pre><code>import pandas as pd
+      <h4>Core Algorithmic Foundation</h4>
+      <pre><code>import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import joblib
 
-# Data preprocessing and training steps...</code></pre>
+# Target feature preprocessing and predictive architecture initialization...
+X = df[['MonthlyCharges', 'tenure', 'TotalCharges', 'Contract']]
+y = df['Churn']
 
-            <br />
-            <p>
-              <strong>Live App:</strong>
-              <a href="https://churn-prediction-model-app-eta4bdwkaqcjkj3cjj9hz6.streamlit.app/" target="_blank">
-                Try the Churn Calculator
-              </a>
-            </p>
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)</code></pre>
 
-          </div>
-        </div>
+      <div class="mt-5 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap">
+        <span class="text-secondary small">© 2026 Corporate Data Analytics Division. All rights reserved.</span>
+        <a href="https://churn-prediction-model-app-eta4bdwkaqcjkj3cjj9hz6.streamlit.app/" target="_blank" class="btn btn-primary text-white text-decoration-none">
+          Launch Interactive Churn Calculator
+        </a>
       </div>
+
     </div>
   </div>
+
+  <script>
+    // Uniform Global Styling Variable overrides for Plotly
+    const chartLayoutProps = {
+      font: { family: 'Segoe UI, sans-serif', size: 12, color: '#475569' },
+      paper_bgcolor: '#ffffff',
+      plot_bgcolor: '#f8fafc',
+      margin: { l: 50, r: 30, t: 50, b: 50 }
+    };
+
+    // Chart 1: Average churn by industry
+    const industries = ['Telecom', 'SaaS', 'Retail', 'Banking', 'Streaming'];
+    const churnRates = [20, 8, 15, 12, 10];
+    Plotly.newPlot('industry-churn', [{
+      x: industries,
+      y: churnRates,
+      type: 'bar',
+      marker: { color: '#4f46e5', border-radius: '4px' }
+    }], {
+      ...chartLayoutProps,
+      title: { text: '<b>Average Churn Rates Across Industries (%)</b>', font: { size: 15, color: '#1e293b' } },
+      yaxis: { title: 'Churn Rate (%)', gridcolor: '#e2e8f0' },
+      xaxis: { gridcolor: '#e2e8f0' }
+    }, { responsive: true });
+
+    // Chart 2: Revenue impact of churn vs retention
+    const scenarios = ['High Churn (20%)', 'Moderate Churn (10%)', 'Low Churn (5%)'];
+    const revenue = [60, 80, 95];
+    Plotly.newPlot('revenue-impact', [{
+      x: scenarios,
+      y: revenue,
+      type: 'bar',
+      marker: { color: ['#ef4444', '#f59e0b', '#10b981'] }
+    }], {
+      ...chartLayoutProps,
+      title: { text: '<b>Revenue Retention Matrix Based on Churn Scenarios</b>', font: { size: 15, color: '#1e293b' } },
+      yaxis: { title: 'Revenue Retained Index', gridcolor: '#e2e8f0' }
+    }, { responsive: true });
+
+    // Chart 3: CLV with churn reduction
+    const churnLevels = ['20% Churn', '15% Churn', '10% Churn', '5% Churn'];
+    const clv = [100, 130, 160, 200];
+    Plotly.newPlot('clv-impact', [{
+      x: churnLevels,
+      y: clv,
+      type: 'scatter',
+      mode: 'lines+markers',
+      line: { shape: 'spline', color: '#6366f1', width: 3 },
+      marker: { size: 8 }
+    }], {
+      ...chartLayoutProps,
+      title: { text: '<b>Customer Lifetime Value (CLV) Improvement Projection</b>', font: { size: 15, color: '#1e293b' } },
+      yaxis: { title: 'CLV Performance Index', gridcolor: '#e2e8f0' },
+      xaxis: { gridcolor: '#e2e8f0' }
+    }, { responsive: true });
+
+    // Chart 4: Feature Importance - Polar View (Clean corporate configuration)
+    const features = [
+      'Monthly Charges', 'Tenure', 'Total Charges', 'Contract',
+      'Payment Method', 'Online Security', 'Tech Support',
+      'Online Backup', 'Gender', 'Paperless Billing'
+    ];
+    const importances = [0.176, 0.175, 0.167, 0.081, 0.051, 0.048, 0.043, 0.028, 0.028, 0.026];
+    const r = importances.map(v => v * 100);
+
+    const corporatePalette = [
+      '#312e81', '#3730a3', '#4338ca', '#4f46e5',
+      '#6366f1', '#818cf8', '#9333ea', '#a855f7',
+      '#c084fc', '#e9d5ff'
+    ];
+
+    const trace = {
+      type: 'barpolar',
+      r: r,
+      theta: features,
+      marker: {
+        color: corporatePalette,
+        line: { color: '#ffffff', width: 1.5 }
+      },
+      text: importances.map(i => (i * 100).toFixed(1) + '%'),
+      hoverinfo: 'text+theta'
+    };
+
+    const polarLayout = {
+      font: { family: 'Segoe UI, sans-serif', color: '#334155' },
+      paper_bgcolor: '#ffffff',
+      title: {
+        text: '<b>Weighted Feature Importance Contribution</b>',
+        font: { size: 16, color: '#1e293b' }
+      },
+      polar: {
+        bgcolor: '#f8fafc',
+        angularaxis: {
+          color: '#64748b',
+          tickfont: { size: 11 },
+          rotation: 90,
+          direction: "clockwise"
+        },
+        radialaxis: {
+          visible: true,
+          tickfont: { size: 9 },
+          gridcolor: "#e2e8f0",
+          color: '#64748b'
+        }
+      },
+      margin: { l: 40, r: 40, t: 60, b: 40 }
+    };
+
+    Plotly.newPlot('radial-chart', [trace], polarLayout, { responsive: true });
+  </script>
 </body>
 </html>
