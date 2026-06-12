@@ -4,366 +4,206 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Executive Analytics Dashboard: Customer Churn</title>
+  <title>Analytics Report: Customer Churn Metrics</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://cdn.plotly.com/plotly-latest.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://cdn.plot.ly/plotly-2.35.0.min.js" charset="utf-8"></script>
 
   <style>
-    :root {
-      --bg-main: #f8fafc;
-      --bg-card: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --primary: #4f46e5;
-      --border: #e2e8f0;
-    }
-
     body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      letter-spacing: -0.01em;
-      padding: 0;
-      margin: 0;
+      background-color: #f8fafc;
+      color: #0f172a;
     }
-
-    /* Fluid modern container optimized for all screens */
-    .dashboard-wrapper {
+    /* Fixed container sizing parameters to allow Plotly Engine calculation space */
+    .chart-container {
       width: 100%;
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-
-    .dashboard-header {
-      margin-bottom: 32px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .dashboard-header h1 {
-      font-size: 1.85rem;
-      font-weight: 700;
-      color: var(--text-main);
-      letter-spacing: -0.02em;
-    }
-
-    /* Asymmetric Dashboard KPI grid layout */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-
-    .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      position: relative;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
-      padding: 20px;
+      padding: 16px;
     }
-
-    .kpi-card .label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .kpi-card .value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    /* Main Content Layout Grid */
-    .content-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-      margin-bottom: 32px;
-    }
-
-    @media (min-width: 992px) {
-      .content-grid {
-        grid-template-columns: 350px 1fr;
-      }
-    }
-
-    .card-panel {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      height: 100%;
-    }
-
-    h2, h3, h4 {
-      font-weight: 600;
-      color: var(--text-main);
-      letter-spacing: -0.015em;
-      margin-top: 0;
-    }
-
     .chart-box {
       width: 100%;
-      min-height: 380px;
-      position: relative;
-    }
-
-    /* Clean modern code block */
-    pre {
-      background-color: #020617;
-      color: #f1f5f9;
-      padding: 16px;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      margin: 0;
-      overflow-x: auto;
-    }
-
-    .btn-dashboard {
-      background-color: var(--primary);
-      color: #ffffff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 500;
-      font-size: 0.9rem;
-      transition: background 0.15s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .btn-dashboard:hover {
-      background-color: #3730a3;
-      color: #ffffff;
-    }
-
-    ul.clean-list {
-      list-style-type: none;
-      padding-left: 0;
-    }
-
-    ul.clean-list li {
-      position: relative;
-      padding-left: 20px;
-      margin-bottom: 12px;
-      font-size: 0.95rem;
-      color: #334155;
-    }
-
-    ul.clean-list li::before {
-      content: "•";
-      color: var(--primary);
-      font-weight: bold;
-      position: absolute;
-      left: 0;
-      top: 0;
+      height: 380px; /* Explicit height parameter prevents 0px collapsed rendering */
     }
   </style>
 </head>
 
-<body>
+<body class="p-4 md:p-8">
 
-  <div class="dashboard-wrapper">
+  <div class="max-w-7xl mx-auto space-y-8">
     
-    <div class="dashboard-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <header class="border-b border-slate-200 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h1>Customer Attrition Deep-Dive</h1>
-        <p class="text-muted m-0 p-0" style="font-size: 0.95rem;">Machine Learning Diagnostics & Macro Industry Trends</p>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Customer Attrition Diagnostic Report</h1>
+        <p class="text-slate-500 mt-1">Predictive Model Insights & Macro-Economic Structural Risks</p>
       </div>
-      <div>
-        <a href="https://churn-prediction-model-app-eta4bdwkaqcjkj3cjj9hz6.streamlit.app/" target="_blank" class="btn-dashboard">
-          Launch Live Simulator
-        </a>
-      </div>
-    </div>
+      <a href="https://churn-prediction-model-app-eta4bdwkaqcjkj3cjj9hz6.streamlit.app/" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+        Launch Live Simulator
+      </a>
+    </header>
 
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="label">Top Feature Weight</div>
-        <div class="value">17.6%</div>
-        <span class="text-muted" style="font-size: 0.8rem;">Monthly Contract Charges</span>
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Top Risk Vector</span>
+        <h2 class="text-2xl font-bold text-slate-900 mt-1">17.6% Weight</h2>
+        <p class="text-xs text-slate-500 mt-1">Attributed to Monthly Billing Totals</p>
       </div>
-      <div class="kpi-card">
-        <div class="label">CAC Impact</div>
-        <div class="value">5-7x</div>
-        <span class="text-muted" style="font-size: 0.8rem;">Cost vs Retention Efficiency</span>
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Financial Strain Profile</span>
+        <h2 class="text-2xl font-bold text-slate-900 mt-1">5x – 7x Premium</h2>
+        <p class="text-xs text-slate-500 mt-1">Acquisition cost compared to baseline retention</p>
       </div>
-      <div class="kpi-card">
-        <div class="label">Telecom Pivot Benchmark</div>
-        <div class="value">15% – 25%</div>
-        <span class="text-muted" style="font-size: 0.8rem;">Average Global Churn Base</span>
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Sector Performance Benchmark</span>
+        <h2 class="text-2xl font-bold text-slate-900 mt-1">15% – 25%</h2>
+        <p class="text-xs text-slate-500 mt-1">Baseline Telecom Industry standard</p>
       </div>
-    </div>
+    </section>
 
-    <div class="content-grid">
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       
-      <div class="d-flex flex-column gap-4">
-        <div class="card-panel">
-          <h3>Execution Protocol</h3>
-          <p class="text-muted" style="font-size: 0.9rem;">Pipeline architecture trained to isolate multi-dimensional vulnerabilities within standard operations.</p>
-          <hr style="border-color: var(--border); margin: 20px 0;" />
-          <ul class="clean-list">
-            <li>Executed automated data cleanses across highly correlated variables.</li>
-            <li>Calculated Random Forest matrices to prune secondary features.</li>
-            <li>Deployed runtime predictions parsing <code>Charges</code>, <code>Tenure</code>, and <code>Contracts</code>.</li>
+      <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 space-y-4">
+          <h3 class="text-lg font-semibold text-slate-900">Project Parameters</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Predictive framework analyzing consumer retention vulnerabilities. The model targets four predictive layers: Monthly Charges, Tenure length, Cumulative Charges, and Contract structural type.
+          </p>
+          <ul class="text-xs text-slate-600 space-y-2 pt-2">
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span> Pruned feature set via Random Forest metrics.</li>
+            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span> Scaled deployment utilizing Streamlit.</li>
           </ul>
         </div>
-        
-        <div class="card-panel">
-          <h3>Model Architecture</h3>
-          <pre><code>import pandas as pd
+
+        <div class="bg-slate-900 text-slate-100 p-5 rounded-xl space-y-3 overflow-hidden">
+          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pipeline Construction</h4>
+          <pre class="text-xs font-mono text-emerald-400 overflow-x-auto"><code>import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-# Training core configuration
+# Define tracking dependencies
 X = df[['MonthlyCharges', 'tenure']]
 y = df['Churn']
 
-model = RandomForestClassifier(
-    n_estimators=100, 
-    random_state=42
-)
+model = RandomForestClassifier(n_estimators=100)
 model.fit(X_train, y_train)</code></pre>
         </div>
       </div>
 
-      <div class="d-flex flex-column gap-4">
+      <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        <div class="row g-4">
-          <div class="col-12 col-xl-6">
-            <div class="card-panel">
-              <div class="chart-box" id="industry-churn"></div>
-            </div>
-          </div>
-          <div class="col-12 col-xl-6">
-            <div class="card-panel">
-              <div class="chart-box" id="revenue-impact"></div>
-            </div>
-          </div>
+        <div class="chart-container">
+          <div id="industry-churn" class="chart-box"></div>
         </div>
 
-        <div class="row g-4">
-          <div class="col-12 col-xl-6">
-            <div class="card-panel">
-              <div class="chart-box" id="clv-impact"></div>
-            </div>
-          </div>
-          <div class="col-12 col-xl-6">
-            <div class="card-panel">
-              <div class="chart-box" id="radial-chart"></div>
-            </div>
-          </div>
+        <div class="chart-container">
+          <div id="revenue-impact" class="chart-box"></div>
+        </div>
+
+        <div class="chart-container">
+          <div id="clv-impact" class="chart-box"></div>
+        </div>
+
+        <div class="chart-container">
+          <div id="radial-chart" class="chart-box"></div>
         </div>
 
       </div>
+    </main>
 
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center flex-wrap pt-4 border-top text-muted" style="font-size: 0.85rem;">
-      <span>Strategic Data Analytics Infrastructure Portal</span>
-      <span>Report Framework &copy; 2026</span>
-    </div>
+    <footer class="border-t border-slate-200 pt-6 text-xs text-slate-400 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <span>Enterprise Data Science Reporting Framework</span>
+      <span>&copy; 2026 Internal Operations Analytics Division</span>
+    </footer>
 
   </div>
 
   <script>
-    // Modern minimal configuration parameters for charts
-    const baseLayout = {
-      font: { family: "'Inter', sans-serif", size: 12, color: '#64748b' },
+    // Uniform, clean minimalist configuration array for cross-platform layouts
+    const structuralLayoutDefaults = {
+      font: { family: "'Inter', sans-serif", size: 11, color: '#64748b' },
       paper_bgcolor: '#ffffff',
       plot_bgcolor: '#f8fafc',
-      margin: { l: 45, r: 20, t: 60, b: 45 },
-      showlegend: false
+      margin: { l: 40, r: 15, t: 55, b: 40 },
+      showlegend: false,
+      autosize: true
     };
 
-    // Chart 1: Market Attrition
+    // Chart 1: Cross-Vertical Baseline Attrition
     Plotly.newPlot('industry-churn', [{
       x: ['Telecom', 'SaaS', 'Retail', 'Banking', 'Streaming'],
       y: [20, 8, 15, 12, 10],
       type: 'bar',
-      marker: { color: '#4f46e5' }
+      marker: { color: '#4f46e5', line: { width: 0 } }
     }], {
-      ...baseLayout,
-      title: { text: '<b>Cross-Vertical Baseline Attrition (%)</b>', font: { size: 14, color: '#0f172a' }, x: 0 },
+      ...structuralLayoutDefaults,
+      title: { text: '<b>Baseline Attrition Across Verticals (%)</b>', font: { size: 13, color: '#0f172a' }, x: 0.05 },
       yaxis: { gridcolor: '#f1f5f9', zeroline: false }
-    }, { displayModeBar: false });
+    }, { responsive: true, displayModeBar: false });
 
-    // Chart 2: Revenue Matrix
+    // Chart 2: Projected Retained Revenue Index
     Plotly.newPlot('revenue-impact', [{
-      x: ['High Churn (20%)', 'Moderate Churn (10%)', 'Low Churn (5%)'],
+      x: ['High Churn', 'Moderate', 'Low Churn'],
       y: [60, 80, 95],
       type: 'bar',
-      marker: { color: ['#ef4444', '#f59e0b', '#10b981'] }
+      marker: { color: ['#f87171', '#fbbf24', '#34d399'] }
     }], {
-      ...baseLayout,
-      title: { text: '<b>Projected Retained Revenue Index</b>', font: { size: 14, color: '#0f172a' }, x: 0 },
+      ...structuralLayoutDefaults,
+      title: { text: '<b>Retained Revenue Index Projection</b>', font: { size: 13, color: '#0f172a' }, x: 0.05 },
       yaxis: { gridcolor: '#f1f5f9', zeroline: false }
-    }, { displayModeBar: false });
+    }, { responsive: true, displayModeBar: false });
 
-    // Chart 3: Growth Curves
+    // Chart 3: Lifetime Enterprise Value Escalation
     Plotly.newPlot('clv-impact', [{
       x: ['20% Churn', '15% Churn', '10% Churn', '5% Churn'],
       y: [100, 130, 160, 200],
       type: 'scatter',
       mode: 'lines+markers',
-      line: { color: '#6366f1', width: 3.5, shape: 'spline' },
-      marker: { size: 7, color: '#4f46e5' }
+      line: { color: '#6366f1', width: 3, shape: 'spline' },
+      marker: { size: 6, color: '#4f46e5' }
     }], {
-      ...baseLayout,
-      title: { text: '<b>Lifetime Enterprise Value Escalation</b>', font: { size: 14, color: '#0f172a' }, x: 0 },
+      ...structuralLayoutDefaults,
+      title: { text: '<b>Lifetime Value Escalation Curve</b>', font: { size: 13, color: '#0f172a' }, x: 0.05 },
       yaxis: { gridcolor: '#f1f5f9', zeroline: false },
-      xaxis: { zeroline: false }
-    }, { displayModeBar: false });
+      xaxis: { gridcolor: '#f1f5f9', zeroline: false }
+    }, { responsive: true, displayModeBar: false });
 
-    // Chart 4: Feature Distribution Matrix 
-    const featuresList = ['Monthly Charges', 'Tenure', 'Total Charges', 'Contract', 'Payment Method', 'Online Security', 'Tech Support', 'Online Backup', 'Gender', 'Paperless Billing'];
-    const importanceValues = [17.6, 17.5, 16.7, 8.1, 5.1, 4.8, 4.3, 2.8, 2.8, 2.6];
-    
+    // Chart 4: Weighted Feature Importance Contribution (Polar Representation)
     Plotly.newPlot('radial-chart', [{
       type: 'barpolar',
-      r: importanceValues,
-      theta: featuresList,
+      r: [17.6, 17.5, 16.7, 8.1, 5.1, 4.8, 4.3, 2.8, 2.8, 2.6],
+      theta: ['Monthly Total', 'Tenure Mo.', 'Total Acc.', 'Contract Type', 'Payment Modality', 'Online Security', 'Tech Support', 'Cloud Backup', 'Demographics', 'Paperless Billing'],
       marker: {
-        color: ['#1e1b4b', '#312e81', '#3730a3', '#4338ca', '#4f46e5', '#6366f1', '#818cf8', '#9333ea', '#c084fc', '#e9d5ff'],
+        color: ['#1e1b4b', '#312e81', '#3730a3', '#4338ca', '#4f46e5', '#6366f1', '#818cf8', '#a78bfa', '#c084fc', '#f3e8ff'],
         line: { color: '#ffffff', width: 1 }
       },
-      text: importanceValues.map(v => v + '%'),
       hoverinfo: 'text+theta'
     }], {
-      font: { family: "'Inter', sans-serif", color: '#64748b', size: 11 },
+      font: { family: "'Inter', sans-serif", color: '#64748b', size: 10 },
       paper_bgcolor: '#ffffff',
-      title: { text: '<b>Feature Node Variance Breakdown</b>', font: { size: 14, color: '#0f172a' }, x: 0 },
-      margin: { l: 30, r: 30, t: 60, b: 30 },
+      title: { text: '<b>Risk Node Correlation Weight</b>', font: { size: 13, color: '#0f172a' }, x: 0.05 },
+      margin: { l: 25, r: 25, t: 55, b: 25 },
       polar: {
         bgcolor: '#f8fafc',
         angularaxis: { color: '#94a3b8', rotation: 90, direction: "clockwise" },
         radialaxis: { visible: true, gridcolor: '#e2e8f0', color: '#94a3b8' }
       }
-    }, { displayModeBar: false });
+    }, { responsive: true, displayModeBar: false });
 
-    // ENGINE FOR CHART VISIBILITY ON SCALING SCREENS
-    // Instantly monitors element containers and orders plot components to perfectly repaint layouts
-    const resizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
-        const id = entry.target.id;
-        if (id) { Plotly.Plots.resize(id); }
-      }
-    });
-
-    document.querySelectorAll('.chart-box').forEach(box => {
-      resizeObserver.observe(box);
-    });
+    // Dynamic Engine Realtime Viewport Auto-scaling Loop
+    // Tells the layout to automatically recalculate pixel properties immediately if screen constraints pivot
+    window.onresize = function() {
+      const targetPlots = ['industry-churn', 'revenue-impact', 'clv-impact', 'radial-chart'];
+      targetPlots.forEach(id => {
+        Plotly.Plots.resize(document.getElementById(id));
+      });
+    };
   </script>
 </body>
 </html>
